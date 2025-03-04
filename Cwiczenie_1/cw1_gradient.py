@@ -2,6 +2,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def matyas(x1, x2):
+    return 0.26(x1*x1 + x2*x2) - 0.48*x1*x2
+
+
+def fx(x):
+    return x1*x1 + x2*x2
+
+
+
 def visualize_fun(obj_fun: callable, trajectory: np.ndarray):
     min_x, min_y = trajectory[-1]
     MIN_X = 10
