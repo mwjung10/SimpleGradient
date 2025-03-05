@@ -1,14 +1,25 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from autograd import grad
+import autograd.numpy as anp
 
 
-def matyas(x1, x2):
-    return 0.26(x1*x1 + x2*x2) - 0.48*x1*x2
+def gradient_descent(f, start, alpha, max_iter=1000, tol=1e-5):
+    trajectory = [start]
 
+    x = anp.array(start, dtype=float)
+    f_grad = grad(lambda x: f(x[0], x[1]))
 
-def fx(x):
-    return x1*x1 + x2*x2
+    for _ in range(max_iter):
+        grad_val = anp.array(f_grad(x))
 
+        if anp.linalg.norm(grad_val) < tol:
+            break
+
+        x = x - alpha * grad_val
+        trajectory.append(x.copy())
+
+    return anp.array(trajectory)
 
 
 def visualize_fun(obj_fun: callable, trajectory: np.ndarray):
@@ -34,3 +45,22 @@ def visualize_fun(obj_fun: callable, trajectory: np.ndarray):
 
     plt.legend()
     plt.show()
+
+
+def function1(x1, x2):
+    """Funkcja celu f(x1, x2) = x1^2 + x2^2"""
+    return x1**2 + x2**2
+
+
+def matyas_function(x1, x2):
+    """Funkcja Matyasa"""
+    return 0.26 * (x1**2 + x2**2) - 0.48 * x1 * x2
+
+
+if __name__ == "__main__":
+    start_points = [(-8, 9), (5, -3), (-2, -6)]
+    alpha = 0.1
+
+    for start in start_points:
+        traj = gradient_descent(function1, start, alpha)
+        visualize_fun(function1, traj)
