@@ -45,34 +45,6 @@ def gradient_descent(f, start, alpha, max_iter=1000, tol=1e-5):
     return anp.array(trajectory), function_values
 
 
-def visualize_fun(obj_fun: callable, trajectory: np.ndarray):
-    min_x, min_y = trajectory[-1]
-    MIN_X = 10
-    MAX_X = 10
-    PLOT_STEP = 100
-
-    x1 = np.linspace(-MIN_X, MAX_X, PLOT_STEP)
-    x2 = np.linspace(-MIN_X, MAX_X, PLOT_STEP)
-    X1, X2 = np.meshgrid(x1, x2)
-    Z = obj_fun(X1, X2)
-
-    plt.figure(figsize=(8, 6))
-    plt.pcolormesh(X1, X2, Z, cmap='viridis', shading='auto')
-    plt.colorbar(label='Objective Function Value')
-    plt.xlabel('x1')
-    plt.ylabel('x2')
-    plt.title('Objective Function Visualization')
-
-    plt.plot(trajectory[:, 0], trajectory[:, 1], marker='o', color='red',
-             label='Gradient Descent Steps', alpha=0.5)
-
-    plt.scatter(min_x, min_y, color='yellow',
-                label='Minimum found by gradient descent alg.', zorder=3)
-
-    plt.legend()
-    plt.show()
-
-
 def objective_function(x1, x2):
     """Objective function f(x1, x2) = x1^2 + x2^2"""
     return x1**2 + x2**2
@@ -89,25 +61,56 @@ def plot_alpha_effect():
 
     plt.figure(figsize=(8, 6))
     for alpha in alphas:
-        traj, function_values = gradient_descent(objective_function, start,
+        traj, function_values = gradient_descent(matyas_function, start,
                                                  alpha)
         plt.plot(function_values, label=f'α={alpha}')
 
     plt.xlabel('Iteration')
     plt.ylabel('Objective Function Value')
-    plt.title('Impact of Learning Rate on Gradient Descent Convergence')
+    plt.title('Impact of Learning Rate on Gradient Descent Convergence '
+              'for Matyas Function')
     plt.legend()
     plt.grid()
+    plt.show()
+
+
+def visualize_multiple_trajectories(obj_fun: callable, start_points: list,
+                                    alpha: float):
+    """
+    Plots the gradient descent trajectories for multiple starting points on a
+        single plot.
+    """
+    MIN_X, MAX_X = 10, 10
+    PLOT_STEP = 100
+
+    x1 = np.linspace(-MIN_X, MAX_X, PLOT_STEP)
+    x2 = np.linspace(-MIN_X, MAX_X, PLOT_STEP)
+    X1, X2 = np.meshgrid(x1, x2)
+    Z = obj_fun(X1, X2)
+
+    plt.figure(figsize=(8, 6))
+    plt.pcolormesh(X1, X2, Z, cmap='viridis', shading='auto')
+    plt.colorbar(label='Objective Function Value')
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.title(f'Objective Function Visualization (α={alpha})')
+
+    for start in start_points:
+        traj, _ = gradient_descent(obj_fun, start, alpha)
+        plt.plot(traj[:, 0], traj[:, 1], marker='o', linestyle='-',
+                 label=f'Start: {start}')
+        plt.scatter(traj[-1, 0], traj[-1, 1], color='yellow',
+                    edgecolors='black', s=100, zorder=3)
+
+    plt.legend()
     plt.show()
 
 
 if __name__ == "__main__":
     # plot_alpha_effect()
 
-    start_points = [(-8, 9), (5, -3), (-2, -6), (1, 1)]
-    alpha = 0.1
+    start_points = [(-8, 9), (5, -3), (-2, -6)]
+    alphas = [0.0001, 0.01, 0.1, 0.5, 1.0]
 
-    for start in start_points:
-        traj, function_values = gradient_descent(matyas_function,
-                                                 start, alpha)
-        visualize_fun(matyas_function, traj)
+    for alpha in alphas:
+        visualize_multiple_trajectories(matyas_function, start_points, alpha)
